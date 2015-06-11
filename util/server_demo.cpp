@@ -1,3 +1,5 @@
+#include <signal.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,15 +34,26 @@ void test_concept()
 }
 */
 
+//void signal_handler(int signo, siginfo_t * /*info*/, void * /*context*/)
+//{
+//    if (signo == SIGINT || signo == SIGTERM) {
+//        fprintf(stderr, "signal %d\n", signo);
+//        if (server_ptr) {
+//            server_ptr->stop();
+//        }
+//    }
+//}
+
 //------------------------------------------------------------------------------
 void test_http_server()
 {
+    
     
     auto http_handler = [](http_server::request const &req,
                            http_server::response      &res)
     {
         fprintf(stderr, "http handler\n");
-        sleep(5);
+        //sleep(5);
         //res.headers.emplace_back("Content-Type", "text/plain");
         res << "YO\n";
     };
@@ -83,9 +96,10 @@ void test_text_server()
 int main(int argc, char **argv)
 {
     
+    
     //fprintf(stderr, "%d\n", connection::new_line_trigger("as\n", 3)); 
     
-    test_text_server(); return 0;
+    //test_text_server(); return 0;
     test_http_server(); return 0;
     
     /*

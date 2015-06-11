@@ -1,4 +1,4 @@
-add_executable(demo test.cpp)
+add_executable(server_demo server_demo.cpp)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-target_link_libraries (demo LINK_PUBLIC httptth)
+target_link_libraries (server_demo LINK_PUBLIC httptth)
 
