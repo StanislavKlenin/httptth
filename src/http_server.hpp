@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <utility> // pair
+#include <map>
 #include <vector>
 
 #include "text_server.hpp"
@@ -30,8 +30,10 @@ public:
         // others later
     };
     
-    // name-value pair, unchanged
-    using raw_header = std::pair<std::string, std::string>;
+    // not so "raw" headers anymore;
+    // duplicate values are concatenated into comma-separated list
+    using raw_header_map = std::map<std::string, std::string>;
+    using raw_header = raw_header_map::value_type;
     
     // maybe better move them up
     struct request
@@ -40,7 +42,8 @@ public:
         std::string             url;
         std::string             version;
         std::string             body;
-        std::vector<raw_header> headers;
+        raw_header_map          headers;
+        //std::vector<raw_header> headers;
         
         // some dedicated fields, like Content-Length ?
         unsigned                content_length;

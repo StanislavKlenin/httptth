@@ -244,7 +244,15 @@ void http_server::internal_handler::operator()(const char *data,
                 cut_short(destination, 400);
                 return;
             }
-            request.headers.push_back(h);
+            //request.headers.push_back(h);
+            auto it = request.headers.find(h.first);
+            if (it != request.headers.end()) {
+                it->second.append(1, ',');
+                it->second.append(h.second);
+            } else {
+                request.headers.insert(h);
+            }
+            
             // fill dedicated fields for some headers
             if (h.first == "Content-Length") {
                 fprintf(stderr, "[%s]\n", h.second.c_str());
