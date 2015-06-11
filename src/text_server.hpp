@@ -1,0 +1,182 @@
+#ifndef __TEXT_SERVER_H__
+#define __TEXT_SERVER_H__
+
+#include "connection.hpp"
+
+#include <arpa/inet.h>
+#include <errno.h>
+#include <string.h> // memset
+#include <unistd.h>
+
+#include <thread>
+
+namespace endpoint_reloaded
+{
+
+// generic line-based text server
+template<typename handler>
+class text_server
+{
+public:
+    explicit text_server(handler h) : prototype(h) {}
+    text_server(const text_server &) = delete;
+    text_server &operator =(const text_server &) = delete;
+    
+    void listen(const char *address, int port);
+    
+protected:
+    struct context
+    {
+        handler    h;
+        connection conn;
+        context(int fd, handler &hdl) :
+            h(hdl),
+            conn(fd, ([&](const char *s, size_t l) { return h(s, l); }))
+        {}
+    };
+    
+private:
+    handler prototype;
+    static const time_t timeout = 5;
+    
+    void process_client(int fd);
+    
+};
+
+template<typename handler>
+void text_server<handler>::listen(const char *address, int port)
+{
+    sockaddr_in addr;
+    
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    
+    if (address) {
+        int status = inet_pton(AF_INET, address, &addr.sin_addr);
+        if (status <= 0) {
+            throw generic_exception();
+        }
+    } else {
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+    
+    auto listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listenfd < 0) {
+        perror("socket");
+        throw network_exception();
+    }
+    
+    char optval = 1;
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
+    
+    int rc = bind(listenfd, (sockaddr *)&addr, sizeof(addr));
+    if (rc < 0) {
+        perror("bind");
+        throw network_exception();
+    }
+    
+    rc = ::listen(listenfd, 128);
+    if (rc < 0) {
+        perror("listen");
+        throw network_exception();
+    }
+    
+    // trivial event loop
+    // later: init "listen thread" and detach it
+    struct timeval tv;
+    tv.tv_sec = timeout;
+    tv.tv_usec = 0;
+    
+    while (true) {
+        // TODO: loop exit condition
+        
+        sockaddr_in client_addr;
+        socklen_t l = sizeof(client_addr);
+        int fd = accept(listenfd, (sockaddr *)&client_addr, &l);
+        if (fd < 0) {
+            perror("accept failed");
+            continue;
+        }
+        
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
+        // status: read() times out, but this is not handled yet
+        
+        std::thread t(&text_server<handler>::process_client, this, fd);
+        t.detach();
+    } // while (true
+    
+    // loop must be interrupted to get here
+    ::close(listenfd);
+}
+
+template<typename handler>
+void text_server<handler>::process_client(int fd)
+{
+    try {
+        fprintf(stderr, "client fd=%d\n", fd);
+        context ctx(fd, prototype);
+        
+        // bind the third parameter (or use std::bind instead)
+        auto read_handler = [&ctx](const char *line, size_t length) {
+            fprintf(stderr, "\\(l=%zu): %.*s\n", length, (int)length, line);
+            ctx.h(line, length, ctx.conn);
+        };
+        readable::handler_type f(std::ref(read_handler));
+        
+        // actually, that could be enough:
+        // while (ctx.conn.read_line(f) == readable::status::ok) ;
+        
+        while (true) {
+            readable::status status = ctx.conn.read_line(f);
+            
+            if (status == readable::status::eof) {
+                break;
+            }
+            
+            if (status == readable::status::again) {
+                // consider this a timeout
+                // a problem: some leftover bytes might still be in the buffer
+                // but do we care, as we are about to disconnect this client?
+                fprintf(stderr, "client %d timed out\n", fd);
+                break;
+            }
+            
+        } // while (true)
+        fprintf(stderr, "client fd=%d: done\n", fd);
+        // close (and therefore flush) should be called automatically
+    } catch (generic_exception &e) {
+        fprintf(stderr, "excpetion: %s\n", e.what());
+    } catch (std::exception &e) {
+        fprintf(stderr, "std::excpetion: %s\n", e.what());
+    }
+}
+
+// default implementation (with triggering on each new line)
+
+// a handler that is a pure function, without a trigger
+using stateless_handler = std::function<void(const char *, size_t, writable &)>;
+
+// handler_type implementation that triggers client function on each new line
+struct on_new_line
+{
+    on_new_line(stateless_handler f) : h(f) {}
+    void operator()(const char *s, size_t l, writable &dst) { h(s, l, dst); }
+    bool operator()(const char *s, size_t l) { return s[l - 1] == '\n'; }
+    stateless_handler h;
+};
+
+
+// TODO: invent some way to minimize type names
+//       or name it something like line_feed_text_server
+
+class line_feed_text_server : public text_server<on_new_line> {
+public:
+    line_feed_text_server(stateless_handler h) :
+        text_server<on_new_line>(on_new_line(h))
+    {}
+};
+
+} // namespace endpoint_reloaded
+
+#endif // __TEXT_SERVER_H__
