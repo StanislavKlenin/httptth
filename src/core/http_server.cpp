@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 //
@@ -441,4 +441,4 @@ const map<unsigned, string> http_server::status_phrases =
 size_t http_server::internal_handler::last = 0;
 
 
-} // namespace endpoint_reloaded
+} // namespace httptth

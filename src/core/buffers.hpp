@@ -8,7 +8,7 @@
 
 #include <algorithm> // min
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // fixed-sized memory buffer for writing
@@ -80,6 +80,6 @@ private:
     size_t returned;  // to the client
 };
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 
 #endif // __BUFFERS_H__

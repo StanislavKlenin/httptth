@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // an entity that is both readable and writable,
@@ -51,6 +51,6 @@ private:
     
 };
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 
 #endif // __CONNECTION_H__

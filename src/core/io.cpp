@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 writable & operator << (writable &destination, unsigned n)
@@ -30,4 +30,4 @@ writable & operator << (writable &destination, const std::string &s)
     return destination;
 }
 
-} // namespace endpoint_reloaded
+} // namespace httptth

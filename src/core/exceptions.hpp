@@ -3,7 +3,7 @@
 
 #include <exception>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // skeletal exception hierarchy, needs some work
@@ -64,6 +64,6 @@ public:
 
 
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 
 #endif // __EXCEPTIONS_H__

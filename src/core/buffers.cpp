@@ -2,7 +2,7 @@
 
 #include <string.h> // memcpy
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 constexpr size_t write_buffer::capacity;
@@ -44,4 +44,4 @@ readable::status read_buffer::get_char(char &c)
     }
 }
 
-} // namespace endpoint_reloaded
+} // namespace httptth

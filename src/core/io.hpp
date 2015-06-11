@@ -6,7 +6,7 @@
 #include <functional>
 #include <string>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // some core concepts
@@ -57,6 +57,6 @@ writable & operator << (writable &destination, const char *s);
 writable & operator << (writable &destination, const char *s);
 writable & operator << (writable &destination, const std::string &s);
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 
 #endif // __IO_H__

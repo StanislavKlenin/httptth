@@ -8,7 +8,7 @@
 
 #include "text_server.hpp"
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // a first iteration, proof of concept thing
@@ -190,5 +190,5 @@ public:
 };
 
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 # endif // __HTTP_SERVER_H__

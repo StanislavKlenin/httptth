@@ -3,7 +3,7 @@
 #include <sys/socket.h> // shutdown
 #include <unistd.h>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 connection::connection(int descriptor, const connection::trigger_condition c) :
@@ -193,4 +193,4 @@ const connection::trigger_condition connection::on_new_line =
         return (l && d[l - 1] == '\n');
     };
 
-} // namespace endpoint_reloaded
+} // namespace httptth

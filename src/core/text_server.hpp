@@ -10,7 +10,7 @@
 
 #include <thread>
 
-namespace endpoint_reloaded
+namespace httptth
 {
 
 // generic line-based text server
@@ -189,6 +189,6 @@ public:
     {}
 };
 
-} // namespace endpoint_reloaded
+} // namespace httptth
 
 #endif // __TEXT_SERVER_H__

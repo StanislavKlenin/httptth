@@ -11,7 +11,7 @@
 #include "http_server.hpp"
 
 using namespace std;
-using namespace endpoint_reloaded;
+using namespace httptth;
 
 /*
 struct concept

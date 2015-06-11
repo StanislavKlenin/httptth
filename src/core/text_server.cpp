@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace endpoint_reloaded
+namespace httptth
 {
 /*
 //
@@ -158,4 +158,4 @@ void text_server::dump_data(const char *data, size_t length)
     fprintf(stderr, "\n");
 }
 */
-} // namespace endpoint_reloaded
+} // namespace httptth
