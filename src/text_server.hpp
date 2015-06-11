@@ -18,11 +18,12 @@ template<typename handler>
 class text_server
 {
 public:
-    explicit text_server(handler h) : prototype(h) {}
+    explicit text_server(handler h) : prototype(h), stop_requested(false) {}
     text_server(const text_server &) = delete;
     text_server &operator =(const text_server &) = delete;
     
     void listen(const char *address, int port);
+    inline void stop() { stop_requested = true; }
     
 protected:
     struct context
@@ -37,6 +38,7 @@ protected:
     
 private:
     handler prototype;
+    bool    stop_requested;
     static const time_t timeout = 5;
     
     void process_client(int fd);
@@ -67,10 +69,14 @@ void text_server<handler>::listen(const char *address, int port)
         throw network_exception();
     }
     
-    char optval = 1;
-    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
+    int e = 1;
+    int rc = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &e, sizeof e);
+    if (rc < 0) {
+        //fprintf(stderr, "setsockopt failed: %d\n", rc);
+        perror("setsockopt");
+    }
     
-    int rc = bind(listenfd, (sockaddr *)&addr, sizeof(addr));
+    rc = bind(listenfd, (sockaddr *)&addr, sizeof(addr));
     if (rc < 0) {
         perror("bind");
         throw network_exception();
@@ -88,8 +94,14 @@ void text_server<handler>::listen(const char *address, int port)
     tv.tv_sec = timeout;
     tv.tv_usec = 0;
     
+    stop_requested = false;
+    
     while (true) {
         // TODO: loop exit condition
+        if (stop_requested) {
+            // possibly log something later
+            break;
+        }
         
         sockaddr_in client_addr;
         socklen_t l = sizeof(client_addr);

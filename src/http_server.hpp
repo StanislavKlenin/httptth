@@ -102,8 +102,9 @@ public:
     
     void listen(const char *address, int port);
     
-protected:
+    inline void stop() { underlying_server.stop(); }
     
+protected:
     // handler for text_server
     class internal_handler// : public text_server::extended_handler
     {
