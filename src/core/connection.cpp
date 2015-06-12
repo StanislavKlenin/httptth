@@ -23,9 +23,12 @@ connection::connection(connection &&that) :
     write_buffer(that),
     fd(that.fd),
     trigger(std::move(that.trigger)),
-    eof_flag(that.eof_flag)
+    eof_flag(that.eof_flag),
+    read_flag(that.read_flag),
+    write_flag(that.write_flag)
 {
-    that.fd = 0;
+    that.fd = -1;
+    that.read_flag = that.read_flag = false;
 }
 
 connection::~connection()
