@@ -6,6 +6,8 @@
 #include "exceptions.hpp"
 #include "io.hpp"
 
+#include "debug.hpp"
+
 #include <algorithm> // min
 
 namespace httptth
