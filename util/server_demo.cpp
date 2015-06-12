@@ -5,10 +5,10 @@
 #include <string.h>
 
 #include <string>
-#include "connection.hpp"
-#include "text_server.hpp"
 
-#include "http_server.hpp"
+#include "core/connection.hpp"
+#include "core/text_server.hpp"
+#include "core/http_server.hpp"
 
 using namespace std;
 using namespace httptth;
@@ -52,7 +52,8 @@ void test_http_server()
     auto http_handler = [](http_server::request const &req,
                            http_server::response      &res)
     {
-        fprintf(stderr, "http handler\n");
+        //fprintf(stderr, "http handler\n");
+        dprintf(logger::DEBUG, "http handler\n");
         //sleep(5);
         //res.headers.emplace_back("Content-Type", "text/plain");
         res << "YO\n";
