@@ -28,7 +28,7 @@ connection::connection(connection &&that) :
     write_flag(that.write_flag)
 {
     that.fd = -1;
-    that.read_flag = that.read_flag = false;
+    that.read_flag = that.write_flag = false;
 }
 
 connection::~connection()
@@ -37,6 +37,10 @@ connection::~connection()
     enough();
     // close writing part:
     end();
+    // release socket resources:
+    close(fd);
+    // note: closing fd will initiate TCP shutdown anyway
+    //       so enough() and end() are redundant here
 }
 
 //void connection::close()
