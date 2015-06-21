@@ -13,6 +13,20 @@
 namespace httptth
 {
 
+class scoped_fd
+{
+public:
+    explicit scoped_fd(int descriptor) : fd(descriptor) {}
+    ~scoped_fd() { close(fd); }
+    scoped_fd(const scoped_fd &) = delete;
+    scoped_fd(scoped_fd &&that) : fd(that.fd) { that.fd = -1; }
+    scoped_fd &operator =(const scoped_fd &) = delete;
+    
+    inline operator int() { return fd; }
+private:
+    int fd;
+};
+
 // generic line-based text server
 template<typename handler>
 class text_server
@@ -63,7 +77,7 @@ void text_server<handler>::listen(const char *address, int port)
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
     
-    auto listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    scoped_fd listenfd(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
     if (listenfd < 0) {
         perror("socket");
         throw network_exception();
@@ -117,9 +131,6 @@ void text_server<handler>::listen(const char *address, int port)
         std::thread t(&text_server<handler>::process_client, this, fd);
         t.detach();
     } // while (true
-    
-    // loop must be interrupted to get here
-    ::close(listenfd);
 }
 
 template<typename handler>

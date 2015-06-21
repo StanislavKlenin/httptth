@@ -24,7 +24,7 @@ public:
     static const trigger_condition on_new_line;
     
 public:
-    // vaid socket descriptor required
+    // valid socket descriptor required
     connection(int descriptor, trigger_condition c = on_new_line);
     connection(const connection &) = delete;
     connection &operator =(const connection &) = delete;
