@@ -15,7 +15,7 @@ connection::connection(int descriptor, const connection::trigger_condition c) :
     read_flag(true),
     write_flag(true)
 {
-    fprintf(stderr, "connection constructed for fd=%d\n", fd);
+    dprintf(logger::DEBUG, "connection constructed for fd=%d", fd);
 }
 
 connection::connection(connection &&that) :
@@ -103,7 +103,7 @@ readable::status connection::read_line(readable::handler_type &handler)
         }
         
         if (data_needed) {
-            //fprintf(stderr, "data needed branch, calling fill\n");
+            //dprintf(logger::DEBUG, "data needed branch, calling fill");
             // call fill
             auto rc = fill();
             switch (rc) {
@@ -111,8 +111,8 @@ readable::status connection::read_line(readable::handler_type &handler)
                     // most interesting case, fill could not complete
                     // consider this equivalent to eof?
                     // or propagate to the caller?
-                    //fprintf(stderr,
-                    //        "fill: status=again with %zu in the buffer\n",
+                    //dprintf(logger::DEBUG,
+                    //        "fill: status=again with %zu in the buffer",
                     //        buffer.size());
                     return rc;
                     break;
@@ -125,7 +125,8 @@ readable::status connection::read_line(readable::handler_type &handler)
             } // switch
             data_needed = false;
         } else {
-            //fprintf(stderr, "data not needed branch, calling get_char\n");
+            //dprintf(logger::DEBUG,
+            //        "data not needed branch, calling get_char");
             // call get_char
             char c;
             auto rc = get_char(c);
@@ -162,7 +163,7 @@ void connection::enough()
 void connection::flush()
 {
     if (!write_flag) return;
-    fprintf(stderr, "flush: %zu bytes\n", length());
+    dprintf(logger::DEBUG, "flush: %zu bytes", length());
     if (length()) {
         ssize_t written = 0;
         auto q = write_buffer::data();

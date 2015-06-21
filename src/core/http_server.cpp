@@ -14,7 +14,7 @@ http_server::http_server(http_server::handler_type h) :
     handler(h),
     underlying_server(internal_handler(h))
 {
-    fprintf(stderr, "http_server constructed\n");
+    dprintf(logger::DEBUG, "http_server constructed");
 }
 /*
 http_server::http_server(http_server::handler_type h) :
@@ -28,7 +28,7 @@ http_server::http_server(http_server::handler_type h) :
     // ^ custom trigger condition must be passed
     //   (and this trigger condition will have to refer to the handler)
 {
-    fprintf(stderr, "http_server constructed\n");
+    dprintf(logger::DEBUG, "http_server constructed");
 }
 */
 
@@ -136,7 +136,10 @@ http_server::internal_handler::internal_handler(const handler_type &h) :
     body_completed(false)
 {
     id = ++last;
-    fprintf(stderr, "##\tinternal_handler %zu constructed; %p\n", id, this);
+    dprintf(logger::DEBUG,
+            "##\tinternal_handler %zu constructed; %p",
+            id,
+            this);
 }
 
 http_server::internal_handler::internal_handler(
@@ -147,8 +150,8 @@ http_server::internal_handler::internal_handler(
         // ...
         id(++last)
 {
-    fprintf(stderr,
-            "##\tinternal_handler %zu copied from %zu; %p\n",
+    dprintf(logger::DEBUG,
+            "##\tinternal_handler %zu copied from %zu; %p",
             this->id,
             that.id,
             this);
@@ -163,14 +166,17 @@ http_server::internal_handler::internal_handler(
         id(that.id)
 {
     that.id = 0;
-    fprintf(stderr, "##\tinternal_handler %zu *moved*; %p\n", this->id, this);
+    dprintf(logger::DEBUG,
+            "##\tinternal_handler %zu *moved*; %p",
+            this->id,
+            this);
 }
 
 //bool http_server::internal_handler::trigger(const char *data, size_t length)
 bool http_server::internal_handler::operator()(const char *data, size_t length)
 {
-    //fprintf(stderr, "trigger: %.*s\n", (int)length, data);
-    //fprintf(stderr, "internal_handler trigger: this=%p\n", this);
+    //dprintf(logger::DEBUG, "trigger: %.*s", (int)length, data);
+    //dprintf(logger::DEBUG, "internal_handler trigger: this=%p", this);
     if (length > 1 &&
         data[length - 2] == '\r' &&
         data[length - 1] == '\n')
@@ -182,7 +188,7 @@ bool http_server::internal_handler::operator()(const char *data, size_t length)
         request.content_length &&
         request.content_length == request.body.length() + length)
     {
-        fprintf(stderr, "@! triggering handler because of content_length\n");
+        dprintf(logger::DEBUG, "@! triggering handler for content_length");
         return true;
     }
     
@@ -196,7 +202,7 @@ void http_server::internal_handler::operator()(const char *data,
                                                size_t length,
                                                writable &destination)
 {
-    fprintf(stderr, "internal_handler: this=%p\n", this);
+    dprintf(logger::DEBUG, "internal_handler: this=%p", this);
     if (!headers_completed) {
         // still parsing headers
         if (length > 1 &&
@@ -206,7 +212,7 @@ void http_server::internal_handler::operator()(const char *data,
             length -= 2;
         } else {
             // trigger error
-            fprintf(stderr, "error: no crlf\n");
+            dprintf(logger::INFO, "error: no crlf");
             cut_short(destination, 400);
             return;
         }
@@ -216,18 +222,18 @@ void http_server::internal_handler::operator()(const char *data,
             parse_start_line(data, length);
             if (request.method == method::NONE) {
                 // still not set, this is an error
-                fprintf(stderr, "error: could not parse method\n");
+                dprintf(logger::INFO, "could not parse method");
                 cut_short(destination, 400);
                 return;
             }
         } else {
             // header or blank expected
             if (!length) {
-                fprintf(stderr, "blank line! cl=%u\n", request.content_length);
+                dprintf(logger::DEBUG, "blank! l=%u", request.content_length);
                 headers_completed = true;
                 if (!request.content_length) {
                     // expect no content and respond right away
-                    //fprintf(stderr, "responding with 200\n");
+                    //dprintf(logger::DEBUG, "responding with 200");
                     //cut_short(destination, 200);
                     serve(destination);
                     // actually, call a handler // later
@@ -237,8 +243,8 @@ void http_server::internal_handler::operator()(const char *data,
             
             raw_header h = parse_header(data, length);
             if (h.first.empty()) {
-                //fprintf(stderr,
-                //        "error: could not parse header %.*s\n",
+                //dprintf(logger::DEBUG,
+                //        "error: could not parse header %.*s",
                 //        length,
                 //        data);
                 cut_short(destination, 400);
@@ -255,9 +261,11 @@ void http_server::internal_handler::operator()(const char *data,
             
             // fill dedicated fields for some headers
             if (h.first == "Content-Length") {
-                fprintf(stderr, "[%s]\n", h.second.c_str());
+                dprintf(logger::DEBUG, "[%s]", h.second.c_str());
                 request.content_length = stoul(h.second);
-                fprintf(stderr, "contentlength %u\n", request.content_length);
+                dprintf(logger::DEBUG,
+                        "contentlength %u",
+                        request.content_length);
             }
         }
     } else {
@@ -276,7 +284,7 @@ void http_server::internal_handler::operator()(const char *data,
         if (request.content_length &&
             request.content_length == request.body.length())
         {
-            fprintf(stderr, "body ended?\n");
+            dprintf(logger::DEBUG, "body ended?");
             //cut_short(destination, 200);
             serve(destination);
         }
@@ -398,7 +406,7 @@ void http_server::internal_handler::cut_short(writable &destination,
 
 void http_server::internal_handler::serve(writable &destination)
 {
-    fprintf(stderr, "serve\n");
+    dprintf(logger::DEBUG, "serve");
     
     // construct the response
     class response response(destination);
