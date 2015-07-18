@@ -18,16 +18,6 @@ protected:
     class internal_handler;
     
 public:
-    enum class method
-    {
-        NONE = 0, // not set / unknown
-        GET,
-        HEAD,
-        POST,
-        PUT,
-        DELETE
-        // others later
-    };
     
     // not so "raw" headers anymore;
     // duplicate values are concatenated into comma-separated list
@@ -37,15 +27,14 @@ public:
     // maybe better move them up
     struct request
     {
-        enum method             method = http_server::method::NONE;
-        std::string             url;
-        std::string             version;
-        std::string             body;
-        raw_header_map          headers;
-        //std::vector<raw_header> headers;
+        std::string    method;
+        std::string    url;
+        std::string    version;
+        std::string    body;
+        raw_header_map headers;
         
         // some dedicated fields, like Content-Length ?
-        unsigned                content_length;
+        unsigned       content_length;
         
         request() : content_length(0) {}
         void clear();
@@ -184,7 +173,6 @@ private:
 public:
     static const std::string crlf;
     static const std::string undefined_status;
-    static const std::map<std::string, method> methods;
     static const std::map<unsigned, std::string> status_phrases;
 };
 

@@ -46,7 +46,7 @@ void http_server::listen(const char *address, int port)
 //
 void http_server::request::clear()
 {
-    method = http_server::method::NONE;
+    method.clear();
     url.clear();
     version.clear();
     headers.clear();
@@ -217,12 +217,12 @@ void http_server::internal_handler::operator()(const char *data,
             return;
         }
         
-        if (request.method == method::NONE) {
+        if (request.method.empty()) {
             // not started yet
             parse_start_line(data, length);
-            if (request.method == method::NONE) {
+            if (request.method.empty()) {
                 // still not set, this is an error
-                dprintf(logger::INFO, "could not parse method");
+                dprintf(logger::NOTICE, "could not parse method");
                 cut_short(destination, 400);
                 return;
             }
@@ -323,33 +323,31 @@ void http_server::internal_handler::parse_start_line(const char *data,
     //(SP), the request-target, another single space (SP), the protocol
     //version, and ends with CRLF.
     //  request-line   = method SP request-target SP HTTP-version CRLF
-    // so we need to split it, avoiding copying
+    // so we need to split it, with minimal copying
     const char *p = data, *q;
     
-    try {
-        // method
-        for (q = p; q < data + length && !isspace(*q); q++) ;
-        if (q == p || q == data + length) {
-            return; // method remains unset
-        }
-        request.method = methods.at(string(p, q - p));
-        
-        // url
-        for (p = q + 1; p < data + length && isspace(*p); p++) ;
-        for (q = p; q < data + length && !isspace(*q); q++) ;
-        if (q == p || q == data + length) {
-            return; // method remains unset
-        }
-        request.url.assign(p, q - p);
-        
-        // version
-        for (p = q + 1; p < data + length && isspace(*p); p++) ;
-        for (q = p; q < data + length && !isspace(*q); q++) ;
-        request.version.assign(p, q - p);
-        
-    } catch (out_of_range) {
-        // do nothing; or set method to NONE just in case?
+    // method
+    for (q = p; q < data + length && !isspace(*q); q++) ;
+    if (q == p || q == data + length) {
+        return; // method remains unset
+    } else {
+        request.method.assign(p, q - p);
     }
+    
+    // url
+    for (p = q + 1; p < data + length && isspace(*p); p++) ;
+    for (q = p; q < data + length && !isspace(*q); q++) ;
+    if (q == p || q == data + length) {
+        request.method.clear();
+        return;
+    } else {
+        request.url.assign(p, q - p);
+    }
+    
+    // version
+    for (p = q + 1; p < data + length && isspace(*p); p++) ;
+    for (q = p; q < data + length && !isspace(*q); q++) ;
+    request.version.assign(p, q - p);
 }
 
 http_server::raw_header http_server::internal_handler::parse_header(
@@ -423,15 +421,6 @@ void http_server::internal_handler::serve(writable &destination)
 
 const string http_server::undefined_status = "Undefined";
 const string http_server::crlf = "\r\n";
-
-const map<string, http_server::method> http_server::methods =
-{
-    { "GET",    http_server::method::GET },
-    { "HEAD",   http_server::method::HEAD },
-    { "POST",   http_server::method::POST },
-    { "PUT",    http_server::method::PUT },
-    { "DELETE", http_server::method::DELETE }
-};
 
 const map<unsigned, string> http_server::status_phrases =
 {
