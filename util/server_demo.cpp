@@ -53,7 +53,7 @@ void test_http_server()
                            http_server::response      &res)
     {
         //fprintf(stderr, "http handler\n");
-        dprintf(logger::INFO, "req %d %s", req.method, req.url.c_str());
+        dprintf(logger::INFO, "req %s %s", req.method.c_str(), req.url.c_str());
         //sleep(5);
         //res.headers.emplace_back("Content-Type", "text/plain");
         res << "YO\n";
