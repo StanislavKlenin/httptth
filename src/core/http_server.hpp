@@ -3,7 +3,6 @@
 
 #include <map>
 #include <string>
-#include <map>
 #include <vector>
 
 #include "text_server.hpp"
