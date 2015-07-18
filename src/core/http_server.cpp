@@ -1,4 +1,5 @@
 #include "http_server.hpp"
+#include "exceptions.hpp"
 
 #include <string.h>
 
@@ -59,7 +60,8 @@ void http_server::request::clear()
 http_server::response::response(writable &dst) :
     destination(dst),
     status(200),
-    write_started(false),
+    status_written(false),
+    body_started(false),
     write_ended(false)
 {
 }
@@ -68,31 +70,47 @@ http_server::response::~response()
 {
 }
 
-void http_server::response::write(const char *data, size_t length)
+void http_server::response::add_header(const string &name, const string &value)
 {
-    if (!write_started) {
-        write_headers();
-        write_started = true;
+    headers.emplace_back(name, value);
+}
+
+void http_server::response::write_header(const string &name,
+                                         const string &value)
+{
+    if (body_started) {
+        throw write_error();
     }
     
-    // TODO: write headers, unless hey have been already written
+    ensure_status();
+    
+    write_header(destination, name, value);
+}
+
+void http_server::response::write(const char *data, size_t length)
+{
+    if (!body_started) {
+        write_headers();
+        body_started = true;
+    }
+    
     destination.write(data, length);
 }
 
 void http_server::response::flush()
 {
-    if (!write_started) {
+    if (!body_started) {
         write_headers();
-        write_started = true;
+        body_started = true;
     }
     destination.flush();
 }
 
 void http_server::response::end()
 {
-    if (!write_started) {
+    if (!body_started) {
         write_headers();
-        write_started = true;
+        body_started = true;
     }
     destination.flush();
     destination.end();
@@ -112,17 +130,24 @@ void http_server::response::write_status(writable &destination,
     destination << "HTTP/1.1 " << status << ' ' << phrase << crlf;
 }
 
+void http_server::response::ensure_status()
+{
+    if (!status_written) {
+        write_status(destination, status);
+        status_written = true;
+    }
+}
+
 void http_server::response::write_headers()
 {
-    if (write_started) {
-        // TODO: throw something
+    if (body_started) {
+        throw write_error();
     }
-    write_started = true;
     
-    write_status(destination, status);
+    ensure_status();
     
     for (auto I : headers) {
-        destination << I.first << ": " << I.second << crlf;
+        write_header(destination, I.first, I.second);
     }
     destination << crlf;
 }

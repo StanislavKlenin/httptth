@@ -47,9 +47,13 @@ public:
         response(writable &dst);
         ~response();
         
-        // header management (later)
-        // set_header(...):   save it, will be written later
-        // write_header(...): write immediately (triggering status line write)
+        // header management
+        
+        // add a new header and save it (will be written later)
+        void add_header(const std::string &name, const std::string &value);
+        
+        // write this header immediately (triggering status line write)
+        void write_header(const std::string &name, const std::string &value);
         
         // status: message is optional, default will be used if empty
         //void set_status(unsigned code, const std::string &phrase = "");
@@ -63,15 +67,22 @@ public:
         void end() override;
         
         static void write_status(writable &destination, unsigned status);
+        static void write_header(writable &destination,
+                                 const std::string &name,
+                                 const std::string &value)
+        {
+            destination << name << ": " << value << crlf;
+        }
         
     protected:
-        void write_headers(); // and status
+        void ensure_status();
+        void write_headers();
     private:
         // need a state: what is already written
         
         writable                &destination;
         unsigned                 status;
-        bool                     write_started, write_ended;
+        bool                     status_written, body_started, write_ended;
         std::string              version;
         std::string              phrase;
         std::string              body;
