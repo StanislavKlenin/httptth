@@ -6,8 +6,8 @@
 //#define DEBUG_LOG_LEVEL 7
 
 #ifdef DEBUG_LOG_LEVEL
-    #include "beamer/src/logger.hpp"
-    #include "beamer/src/file.hpp"
+    #include "logger.hpp"
+    #include "file.hpp"
     namespace httptth
     {
     
