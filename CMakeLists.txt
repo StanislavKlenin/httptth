@@ -18,26 +18,20 @@ add_library (httptth
     src/text_server.cpp
     src/http_server.cpp)
 
+include_directories("src")
+
 # make pthread a link requirement for this library
 target_link_libraries(httptth LINK_PUBLIC pthread)
 
 # and logger too
 target_link_libraries (httptth LINK_PUBLIC beamer)
 
-#add_subdirectory(src)
 add_subdirectory(beamer)
 
 
 #
 # demo utility
 #
-# later
-#add_executable(server_demo server_demo.cpp)
-#target_link_libraries (server_demo LINK_PUBLIC httptth)
-
-
-#include_directories("src")
-#add_subdirectory(src/core)
-#add_subdirectory(src/logger)
-#add_subdirectory(util)
+add_executable(server_demo util/server_demo.cpp)
+target_link_libraries (server_demo LINK_PUBLIC httptth)
 

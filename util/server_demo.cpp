@@ -6,9 +6,9 @@
 
 #include <string>
 
-#include "core/connection.hpp"
-#include "core/text_server.hpp"
-#include "core/http_server.hpp"
+#include "connection.hpp"
+#include "text_server.hpp"
+#include "http_server.hpp"
 
 using namespace std;
 using namespace httptth;
