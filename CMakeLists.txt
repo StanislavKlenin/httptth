@@ -24,7 +24,7 @@ target_link_libraries(httptth LINK_PUBLIC pthread)
 # and logger too
 target_link_libraries (httptth LINK_PUBLIC beamer)
 
-add_subdirectory(src)
+#add_subdirectory(src)
 add_subdirectory(beamer)
 
 
