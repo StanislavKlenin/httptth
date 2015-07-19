@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace httptth;
+using namespace beamer;
 
 /*
 struct concept

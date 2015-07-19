@@ -6,14 +6,12 @@
 //#define DEBUG_LOG_LEVEL 7
 
 #ifdef DEBUG_LOG_LEVEL
-    #include "logger/logger.hpp"
-    #include "logger/file.hpp"
+    #include "beamer/src/logger.hpp"
+    #include "beamer/src/file.hpp"
     namespace httptth
     {
-        
-    static logger static_logger(
-        transport::make<stderr_transport>(
-            static_cast<logger::level>(DEBUG_LOG_LEVEL)));
+    
+    extern beamer::logger static_logger;
     
     #define dprintf(level, ...) \
         do { static_logger.format(level, __VA_ARGS__); } while (0)

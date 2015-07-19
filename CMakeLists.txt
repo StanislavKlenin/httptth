@@ -12,6 +12,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # httptth library
 #
 add_library (httptth
+    src/debug.cpp
     src/io.cpp
     src/buffers.cpp
     src/connection.cpp
@@ -19,6 +20,7 @@ add_library (httptth
     src/http_server.cpp)
 
 include_directories("src")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
 # make pthread a link requirement for this library
 target_link_libraries(httptth LINK_PUBLIC pthread)

@@ -4,6 +4,7 @@
 #include <string.h>
 
 using namespace std;
+using namespace beamer;
 
 namespace httptth
 {

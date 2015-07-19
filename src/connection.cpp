@@ -3,6 +3,8 @@
 #include <sys/socket.h> // shutdown
 #include <unistd.h>
 
+using namespace beamer;
+
 namespace httptth
 {
 
