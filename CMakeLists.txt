@@ -30,9 +30,14 @@ target_link_libraries (httptth LINK_PUBLIC beamer)
 
 add_subdirectory(beamer)
 
+#
+# text server demonstration
+#
+add_executable(text_server_demo util/text_server_demo.cpp)
+target_link_libraries (text_server_demo LINK_PUBLIC httptth)
 
 #
-# demo utility
+# http server demonstration
 #
 add_executable(http_server_demo util/http_server_demo.cpp)
 target_link_libraries (http_server_demo LINK_PUBLIC httptth)
