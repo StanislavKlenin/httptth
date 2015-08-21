@@ -11,6 +11,9 @@
     namespace httptth
     {
     
+    // make logger::level enum visible
+    using beamer::logger;
+    
     extern beamer::logger static_logger;
     
     #define dprintf(level, ...) \
