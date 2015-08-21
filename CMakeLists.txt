@@ -34,6 +34,6 @@ add_subdirectory(beamer)
 #
 # demo utility
 #
-add_executable(server_demo util/server_demo.cpp)
-target_link_libraries (server_demo LINK_PUBLIC httptth)
+add_executable(http_server_demo util/http_server_demo.cpp)
+target_link_libraries (http_server_demo LINK_PUBLIC httptth)
 
