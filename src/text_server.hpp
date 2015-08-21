@@ -86,7 +86,7 @@ void text_server<handler>::listen(const char *address, int port)
     int e = 1;
     int rc = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &e, sizeof e);
     if (rc < 0) {
-        dprintf(beamer::logger::ERR, "setsockopt");
+        dprintf(logger::ERR, "setsockopt");
         throw network_exception();
     }
     
@@ -137,16 +137,12 @@ template<typename handler>
 void text_server<handler>::process_client(int fd)
 {
     try {
-        dprintf(beamer::logger::DEBUG, "client fd=%d", fd);
+        dprintf(logger::DEBUG, "client fd=%d", fd);
         context ctx(fd, prototype);
         
         // bind the third parameter (or use std::bind instead)
         auto read_handler = [&ctx](const char *line, size_t length) {
-            dprintf(beamer::logger::DEBUG,
-                    "\\(l=%zu) %.*s",
-                    length,
-                    (int)length,
-                    line);
+            dprintf(logger::DEBUG, "\\(l=%zu) %.*s", length, (int)length, line);
             ctx.h(line, length, ctx.conn);
         };
         readable::handler_type f(std::ref(read_handler));
@@ -165,17 +161,17 @@ void text_server<handler>::process_client(int fd)
                 // consider this a timeout
                 // a problem: some leftover bytes might still be in the buffer
                 // but do we care, as we are about to disconnect this client?
-                dprintf(beamer::logger::DEBUG, "client %d timed out", fd);
+                dprintf(logger::DEBUG, "client %d timed out", fd);
                 break;
             }
             
         } // while (true)
-        dprintf(beamer::logger::DEBUG, "client fd=%d: done", fd);
+        dprintf(logger::DEBUG, "client fd=%d: done", fd);
         // close (and therefore flush) should be called automatically
     } catch (generic_exception &e) {
-        dprintf(beamer::logger::WARNING, "excpetion: %s", e.what());
+        dprintf(logger::WARNING, "excpetion: %s", e.what());
     } catch (std::exception &e) {
-        dprintf(beamer::logger::WARNING, "std::excpetion: %s", e.what());
+        dprintf(logger::WARNING, "std::excpetion: %s", e.what());
     }
 }
 
