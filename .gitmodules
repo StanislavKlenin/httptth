@@ -1,0 +1,3 @@
+[submodule "beamer"]
+	path = beamer
+	url = https://github.com/StanislavKlenin/beamer
