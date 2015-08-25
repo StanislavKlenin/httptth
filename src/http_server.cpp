@@ -400,7 +400,7 @@ http_server::raw_header http_server::internal_handler::parse_header(
 
 void http_server::internal_handler::clear()
 {
-    headers_completed = false;
+    headers_completed = body_completed = false;
     request.clear();
     //response.clear();
 }
