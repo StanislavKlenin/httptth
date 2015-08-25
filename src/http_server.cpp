@@ -306,10 +306,12 @@ void http_server::internal_handler::operator()(const char *data,
         // but now we can install a custom trigger
         
         
-        if (request.content_length &&
+        if (!body_completed &&
+            request.content_length &&
             request.content_length == request.body.length())
         {
             dprintf(logger::DEBUG, "body ended?");
+            body_completed = true;
             //cut_short(destination, 200);
             serve(destination);
         }
