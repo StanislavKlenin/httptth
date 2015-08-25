@@ -32,7 +32,7 @@ public:
     
 protected:
     inline const char *data() const { return buffer; }
-    inline const size_t length() const { return p - buffer; }
+    inline size_t length() const { return p - buffer; }
     
 private:
     char  buffer[capacity];

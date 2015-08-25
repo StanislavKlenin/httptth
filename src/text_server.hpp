@@ -35,6 +35,8 @@ public:
     explicit text_server(handler h) : prototype(h), stop_requested(false) {}
     text_server(const text_server &) = delete;
     text_server &operator =(const text_server &) = delete;
+    text_server(const text_server &&) = delete;
+    text_server &operator =(const text_server &&) = delete;
     
     void listen(const char *address, int port);
     inline void stop() { stop_requested = true; }

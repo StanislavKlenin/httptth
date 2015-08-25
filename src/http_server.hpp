@@ -124,7 +124,7 @@ protected:
         
         //bool trigger(const char *data, size_t length) override;
         
-        void operator()(const char *data, size_t length,writable &destination);
+        void operator()(const char *data, size_t length, writable &destination);
         bool operator()(const char *data, size_t length);
         
         //std::unique_ptr<text_server::extended_handler> clone() override
