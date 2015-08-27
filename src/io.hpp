@@ -26,7 +26,7 @@ public:
     
     using handler_type = std::function<void(const char *, size_t)>;
     
-    // read some chank of data and pass it to the handler
+    // read some chunk of data and pass it to the handler
     virtual status read_line(handler_type &handler) = 0;
     
     // stop reading (close)
