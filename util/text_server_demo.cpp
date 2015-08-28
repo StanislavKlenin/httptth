@@ -5,7 +5,7 @@
 using namespace std;
 using namespace httptth;
 
-void test_text_server()
+void test_text_server(const char *host, int port)
 {
     auto echo_handler = [](const char *data,
                            size_t length,
@@ -22,12 +22,17 @@ void test_text_server()
         }
     };
     
+    dprintf(logger::INFO,
+            "starting server at %s:%d",
+            host ? host : "localhost",
+            port);
+    
     line_feed_text_server server(echo_handler);
-    server.listen(nullptr, 1234);
+    server.listen(host, port);
 }
 
-int main(int argc, char **argv)
+int main()
 {
-    test_text_server();
+    test_text_server(nullptr, 1234);
     return 0;
 }

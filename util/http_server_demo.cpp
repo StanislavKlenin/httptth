@@ -34,11 +34,11 @@ void test_http_server(const char *host, int port)
             host ? host : "localhost",
             port);
     
-    http_server http(std::ref(http_handler));
+    http_server http(http_handler);
     http.listen(host, port);
 }
 
-int main(int argc, char **argv)
+int main()
 {
     test_http_server(nullptr, 1234);
     return 0;
