@@ -32,7 +32,14 @@ template<typename handler>
 class text_server
 {
 public:
-    explicit text_server(handler h) : prototype(h), stop_requested(false) {}
+    explicit text_server(const handler &h) :
+        prototype(h),
+        stop_requested(false)
+    {}
+    explicit text_server(handler &&h) :
+        prototype(std::move(h)),
+        stop_requested(false)
+    {}
     text_server(const text_server &) = delete;
     text_server &operator =(const text_server &) = delete;
     text_server(const text_server &&) = delete;
@@ -46,7 +53,8 @@ protected:
     {
         handler    h;
         connection conn;
-        context(int fd, handler &hdl) :
+        // context must always copy the handler
+        context(int fd, const handler &hdl) :
             h(hdl),
             conn(fd, ([&](const char *s, size_t l) { return h(s, l); }))
         {}
@@ -185,16 +193,14 @@ using stateless_handler = std::function<void(const char *, size_t, writable &)>;
 // handler_type implementation that triggers client function on each new line
 struct on_new_line
 {
-    on_new_line(stateless_handler f) : h(f) {}
+    on_new_line(const stateless_handler &f) : h(f) {}
+    on_new_line(stateless_handler &&f) : h(std::move(f)) {}
     void operator()(const char *s, size_t l, writable &dst) { h(s, l, dst); }
     bool operator()(const char *s, size_t l) { return s[l - 1] == '\n'; }
     stateless_handler h;
 };
 
-
-// TODO: invent some way to minimize type names
-//       or name it something like line_feed_text_server
-
+// text server with on_new_line handler
 class line_feed_text_server : public text_server<on_new_line> {
 public:
     line_feed_text_server(stateless_handler h) :
