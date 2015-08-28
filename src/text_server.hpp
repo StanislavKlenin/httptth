@@ -196,15 +196,18 @@ struct on_new_line
     on_new_line(const stateless_handler &f) : h(f) {}
     on_new_line(stateless_handler &&f) : h(std::move(f)) {}
     void operator()(const char *s, size_t l, writable &dst) { h(s, l, dst); }
-    bool operator()(const char *s, size_t l) { return s[l - 1] == '\n'; }
+    bool operator()(const char *s, size_t l) { return l && s[l - 1] == '\n'; }
     stateless_handler h;
 };
 
 // text server with on_new_line handler
 class line_feed_text_server : public text_server<on_new_line> {
 public:
-    line_feed_text_server(stateless_handler h) :
+    line_feed_text_server(const stateless_handler &h) :
         text_server<on_new_line>(on_new_line(h))
+    {}
+    line_feed_text_server(stateless_handler &&h) :
+        text_server<on_new_line>(on_new_line(std::move(h)))
     {}
 };
 
