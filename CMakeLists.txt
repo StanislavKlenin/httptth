@@ -8,6 +8,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
+add_subdirectory(beamer)
+
 #
 # httptth library
 #
@@ -16,7 +18,6 @@ add_library (httptth
     src/io.cpp
     src/buffers.cpp
     src/connection.cpp
-    src/text_server.cpp
     src/http_server.cpp)
 
 include_directories("src")
@@ -28,7 +29,6 @@ target_link_libraries(httptth LINK_PUBLIC pthread)
 # and logger too
 target_link_libraries (httptth LINK_PUBLIC beamer)
 
-add_subdirectory(beamer)
 
 #
 # text server demonstration

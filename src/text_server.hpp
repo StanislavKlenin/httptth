@@ -65,6 +65,9 @@ private:
     bool    stop_requested;
     static const time_t timeout = 5;
     
+    // currently using one thread per client model which is inefficient
+    // need to implement a thread pool
+    // (or make use of some existing implementation)
     void process_client(int fd);
     
 };
@@ -89,6 +92,9 @@ void text_server<handler>::listen(const char *address, int port)
     
     scoped_fd listenfd(socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
     if (listenfd < 0) {
+        // maybe use logger instead of perror here
+        // on the other hand, these are terminal conditions,
+        // impossible to recover from
         perror("socket");
         throw network_exception();
     }
@@ -140,6 +146,8 @@ void text_server<handler>::listen(const char *address, int port)
         
         std::thread t(&text_server<handler>::process_client, this, fd);
         t.detach();
+        // TODO; instantiate a packaged task instead,
+        // and pass it to some worker or a pool
     } // while (true
 }
 
